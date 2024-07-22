@@ -1,0 +1,34 @@
+{
+  "kind": "collectionType",
+  "collectionName": "proxies",
+  "info": {
+    "singularName": "proxy",
+    "pluralName": "proxies",
+    "displayName": "proxy",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "host": {
+      "type": "string",
+      "regex": "\\b((25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])\\.){3}(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])\\b",
+      "default": "127.127.127.127",
+      "required": true
+    },
+    "port": {
+      "type": "integer",
+      "max": 65535,
+      "default": 80,
+      "required": true
+    },
+    "protocol": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::passo.protocol",
+      "inversedBy": "proxies"
+    }
+  }
+}
