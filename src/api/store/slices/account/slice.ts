@@ -13,7 +13,7 @@ export default async ({ strapi }: { strapi: Strapi }) => {
     await strapi.db.query("api::passo.account").findMany()
   ).map((account) => ({
     status: "login-queue",
-    token: null,
+    localStorage: null,
     email: account.email,
     password: account.password,
   }));
@@ -43,6 +43,22 @@ export default async ({ strapi }: { strapi: Strapi }) => {
         { payload: accounts }: PayloadAction<account[]>
       ) {
         state.accounts = accounts;
+      },
+
+      setLocalStorage(
+        state: accountState,
+        {
+          payload: { localStorage, email },
+        }: PayloadAction<{ localStorage: any; email: string }>
+      ) {
+        const itemIndex = state.accounts.findIndex(
+          (account) => account.email === email
+        );
+        if (itemIndex === -1) {
+          return;
+        }
+
+        state.accounts[itemIndex].localStorage = localStorage;
       },
     },
   });
