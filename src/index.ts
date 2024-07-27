@@ -1,5 +1,8 @@
-export default {
-  register() {},
+import { Strapi } from "@strapi/strapi";
 
-  bootstrap() {},
+export default {
+  async register({ strapi }: { strapi: Strapi }) {},
+  async bootstrap({ strapi }: { strapi: Strapi }) {
+    await strapi.service("api::store.store").createStore();
+  },
 };

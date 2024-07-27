@@ -15,6 +15,7 @@
     "strapi": "strapi"
   },
   "dependencies": {
+    "@reduxjs/toolkit": "^2.2.6",
     "@strapi/plugin-cloud": "4.25.4",
     "@strapi/plugin-i18n": "4.25.4",
     "@strapi/plugin-users-permissions": "4.25.4",

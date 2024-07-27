@@ -794,12 +794,14 @@ export interface ApiPassoAccount extends Schema.CollectionType {
     singularName: 'account';
     pluralName: 'accounts';
     displayName: 'Account';
+    description: '';
   };
   options: {
     draftAndPublish: false;
   };
   attributes: {
-    token: Attribute.String;
+    email: Attribute.Email;
+    password: Attribute.String;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<
