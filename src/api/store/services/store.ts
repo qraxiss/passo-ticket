@@ -18,6 +18,9 @@ export default ({ strapi }: { strapi: Strapi }) => ({
       .getActions();
     return store;
   },
+  dispatch(args) {
+    return strapi.service("api::store.store").getStore().dispatch(args);
+  },
   actions: null,
   store: null,
 });
