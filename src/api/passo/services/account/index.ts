@@ -1,15 +1,17 @@
 import { OpenAI } from "openai";
 import { PROMPT } from "./prompt";
 import login from "./selenium";
-import { accountSelector } from "../../../store/slices/account/slice";
+import { accountSelector, actions } from "../../../store/slices/account/slice";
 
 const client = new OpenAI({
   apiKey: process.env.OPEN_AI_TOKEN,
 });
 
 export default ({ strapi }) => ({
-  async updateAccessToken(accessToken: string | null): Promise<void> {
-    console.log(accessToken.replace(`"Bearer `, "").replace('"', ""));
+  setLocalStorage(localStorage: any, email: string): Promise<void> {
+    return strapi
+      .service("api::store.store")
+      .dispatch(actions.setLocalStorage({ localStorage, email }));
   },
   async resolveCaptca(base64: string): Promise<string> {
     const data = await client.chat.completions.create({

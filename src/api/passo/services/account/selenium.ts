@@ -1,5 +1,6 @@
 import { WebDriver, Builder, By } from "selenium-webdriver";
 import { Strapi } from "@strapi/strapi";
+import { accountSelector } from "../../../store/slices/account/slice";
 
 async function sendEmail(driver: WebDriver, email: string): Promise<void> {
   await driver
@@ -95,29 +96,45 @@ async function checkLoginStatus(driver: WebDriver): Promise<boolean> {
   return (await driver.getCurrentUrl()) === "https://www.passo.com.tr/tr";
 }
 
-async function getAccessToken(driver: WebDriver): Promise<string> {
-  const accessToken = (await driver.executeScript(
-    "return localStorage.getItem('storage_token');"
+async function getLocalStorage(driver: WebDriver): Promise<string> {
+  const localStorage = (await driver.executeScript(
+    "return {...localStorage};"
   )) as string | null;
-  return accessToken;
+
+  console.log(localStorage);
+  return localStorage;
 }
 
 async function login(driver: WebDriver, email: string, password: string) {
   await driver.get("https://www.passo.com.tr/tr/giris");
-  await driver.sleep(500);
+  await driver.sleep(1000);
 
-  await Promise.all([sendEmail(driver, email), sendPassword(driver, password)]);
+  await sendEmail(driver, email);
+  await sendPassword(driver, password);
 
-  // captcha
-  do {
-    await refreshCaptcha(driver);
+  while (true) {
     await sendCaptcha(driver, await solveCaptcha(driver));
-    await clickLogin(driver);
-  } while (await checkIsCaptchaFalse(driver));
+    try {
+      await clickLogin(driver);
+    } catch (error) {
+      await refreshCaptcha(driver);
+      await driver.sleep(300);
+      continue;
+    }
 
-  await driver.sleep(500);
+    await driver.sleep(1000);
+    if (await checkIsCaptchaFalse(driver)) {
+      await driver.sleep(300);
+      await refreshCaptcha(driver);
+      await driver.sleep(300);
+    } else {
+      break;
+    }
+  }
+
+  await driver.sleep(1000);
   if (await checkLoginStatus(driver)) {
-    return await getAccessToken(driver);
+    return await getLocalStorage(driver);
   }
 
   return null;
@@ -128,8 +145,7 @@ export default ({ strapi }: { strapi: Strapi }) =>
     let driver: WebDriver;
     try {
       driver = await new Builder().forBrowser("chrome").build();
-      const accessToken = await login(driver, email, password);
-      return accessToken;
+      return await login(driver, email, password);
     } catch (error) {
       console.log(error);
     } finally {
