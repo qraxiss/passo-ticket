@@ -1,7 +1,7 @@
 import { OpenAI } from "openai";
 import { PROMPT } from "./prompt";
-import login from "./selenium";
-import { accountSelector, actions } from "../../../store/slices/account/slice";
+import { loginSelenium, setTokenSelenium } from "./selenium";
+import { selector, actions } from "../../../store/slices/account/slice";
 
 const client = new OpenAI({
   apiKey: process.env.OPEN_AI_TOKEN,
@@ -21,9 +21,10 @@ export default ({ strapi }) => ({
     });
     return data.choices[0].message.content;
   },
-  login: login({ strapi }),
+  login: loginSelenium({ strapi }),
+  setToken: setTokenSelenium({ strapi }),
 
   accounts() {
-    return accountSelector(strapi.service("api::store.store").getState());
+    return selector(strapi.service("api::store.store").getState());
   },
 });

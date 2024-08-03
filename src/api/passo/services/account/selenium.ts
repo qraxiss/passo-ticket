@@ -1,6 +1,23 @@
-import { WebDriver, Builder, By } from "selenium-webdriver";
+import { WebDriver, By } from "selenium-webdriver";
 import { Strapi } from "@strapi/strapi";
-import { accountSelector } from "../../../store/slices/account/slice";
+
+const localStorage = (data: any) => {
+  return `
+function setLocalStorage(data) {
+  for (const key in data) {
+    if (data.hasOwnProperty(key)) {
+      localStorage.setItem(key, data[key]);
+    }
+  }
+}
+
+const data = ${data};
+
+setLocalStorage(data);
+
+return {...localStorage};
+`;
+};
 
 async function sendEmail(driver: WebDriver, email: string): Promise<void> {
   await driver
@@ -96,19 +113,32 @@ async function checkLoginStatus(driver: WebDriver): Promise<boolean> {
   return (await driver.getCurrentUrl()) === "https://www.passo.com.tr/tr";
 }
 
+async function openLoginPage(driver: WebDriver): Promise<void> {
+  await driver.get("https://www.passo.com.tr/tr/giris");
+  await driver.wait(async () => {
+    try {
+      await driver.findElement(
+        By.xpath(
+          "/html/body/app-root/app-layout/app-login/section/div/div/div/div/div[2]/div/div/div[1]/div/quick-form/div/quick-input[1]/input"
+        )
+      );
+      return true;
+    } catch (error) {
+      return false;
+    }
+  });
+}
+
 async function getLocalStorage(driver: WebDriver): Promise<string> {
   const localStorage = (await driver.executeScript(
     "return {...localStorage};"
   )) as string | null;
 
-  console.log(localStorage);
   return localStorage;
 }
 
 async function login(driver: WebDriver, email: string, password: string) {
-  await driver.get("https://www.passo.com.tr/tr/giris");
-  await driver.sleep(1000);
-
+  await openLoginPage(driver);
   await sendEmail(driver, email);
   await sendPassword(driver, password);
 
@@ -140,17 +170,21 @@ async function login(driver: WebDriver, email: string, password: string) {
   return null;
 }
 
-export default ({ strapi }: { strapi: Strapi }) =>
-  async (email: string, password: string) => {
-    let driver: WebDriver;
+export const loginSelenium =
+  ({ strapi }: { strapi: Strapi }) =>
+  async (email: string, password: string, driver: WebDriver) => {
     try {
-      driver = await new Builder().forBrowser("chrome").build();
       return await login(driver, email, password);
     } catch (error) {
       console.log(error);
-    } finally {
-      await driver.quit();
+      return null;
     }
+  };
 
-    return null;
+export const setTokenSelenium =
+  ({ strapi }: { strapi: Strapi }) =>
+  async (token: any, driver: WebDriver) => {
+    const data = JSON.stringify(token);
+    await openLoginPage(driver);
+    return await driver.executeScript(localStorage(data));
   };

@@ -3,6 +3,7 @@ import accountSlice from "./account/slice";
 import proxySlice from "./proxy/slice";
 
 const rootReducer = async ({ strapi }) => {
+  //mount slices
   await Promise.all([accountSlice({ strapi }), proxySlice({ strapi })]);
 
   return combineReducers({

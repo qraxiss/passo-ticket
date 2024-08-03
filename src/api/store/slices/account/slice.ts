@@ -6,8 +6,7 @@ import { Strapi } from "@strapi/strapi";
 export let actions;
 export let reducer;
 export let slice;
-export const accountSelector = (state: RootState) =>
-  state.account as accountState;
+export const selector = (state: RootState) => state.account as accountState;
 export default async ({ strapi }: { strapi: Strapi }) => {
   const accounts: account[] = (
     await strapi.db.query("api::passo.account").findMany()
@@ -57,7 +56,7 @@ export default async ({ strapi }: { strapi: Strapi }) => {
         if (itemIndex === -1) {
           return;
         }
-
+        state.accounts[itemIndex].status = "active";
         state.accounts[itemIndex].localStorage = localStorage;
       },
     },
