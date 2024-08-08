@@ -8,5 +8,9 @@ module.exports = {
       name: "start",
       script: "yarn strapi start",
     },
+    {
+      name: "admin",
+      script: "yarn strapi develop --watch-admin",
+    },
   ],
 };

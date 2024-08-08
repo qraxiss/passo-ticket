@@ -8,6 +8,7 @@
     "name": "qraxiss"
   },
   "scripts": {
+    "admin": "pm2-runtime start ecosystem.config.js --only \"admin\"",
     "build": "strapi build",
     "deploy": "strapi deploy",
     "develop": "pm2-runtime start ecosystem.config.js --only \"develop\"",
